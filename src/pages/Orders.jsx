@@ -1,23 +1,29 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { useToast } from "@/hooks/use-toast"
-import { apiService } from "../services/api"
-import { Search, Eye, Phone, MapPin, Calendar, Package } from "lucide-react"
-import OrderDialog from "../components/OrderDialog"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { apiService } from "../services/api";
+import { Search, Eye, Phone, MapPin, Calendar, Package } from "lucide-react";
+import OrderDialog from "../components/OrderDialog";
 
 const Orders = () => {
-  const { toast } = useToast()
-  const [orders, setOrders] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedStatus, setSelectedStatus] = useState("")
-  const [showOrderDialog, setShowOrderDialog] = useState(false)
-  const [selectedOrder, setSelectedOrder] = useState(null)
+  const { toast } = useToast();
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [showOrderDialog, setShowOrderDialog] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   const statusOptions = [
     { value: "", label: "Barcha holatlar" },
@@ -25,26 +31,27 @@ const Orders = () => {
     { value: "in_process", label: "Jarayonda" },
     { value: "delivered", label: "Yetkazilgan" },
     { value: "cancelled", label: "Bekor qilingan" },
-  ]
+  ];
 
   useEffect(() => {
-    fetchOrders()
-  }, [])
+    fetchOrders();
+  }, []);
 
   const fetchOrders = async () => {
     try {
-      const response = await apiService.getOrders()
-      setOrders(response.data || [])
+      const response = await apiService.getOrders();
+
+      setOrders(response.orders || []);
     } catch (error) {
       toast({
         title: "Xatolik",
         description: "Buyurtmalarni yuklashda xatolik yuz berdi",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const getStatusText = (status) => {
     const statusMap = {
@@ -52,9 +59,9 @@ const Orders = () => {
       in_process: "Jarayonda",
       delivered: "Yetkazilgan",
       cancelled: "Bekor qilingan",
-    }
-    return statusMap[status] || status
-  }
+    };
+    return statusMap[status] || status;
+  };
 
   const getStatusColor = (status) => {
     const colorMap = {
@@ -62,33 +69,37 @@ const Orders = () => {
       in_process: "bg-blue-100 text-blue-800 border-blue-200",
       delivered: "bg-green-100 text-green-800 border-green-200",
       cancelled: "bg-red-100 text-red-800 border-red-200",
-    }
-    return colorMap[status] || "bg-gray-100 text-gray-800 border-gray-200"
-  }
+    };
+    return colorMap[status] || "bg-gray-100 text-gray-800 border-gray-200";
+  };
 
   const filteredOrders = orders.filter((order) => {
     const matchesSearch =
       !searchTerm ||
       order.orderNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.customer?.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.customer?.phoneNumber?.includes(searchTerm)
+      order.customer?.fullName
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      order.customer?.phoneNumber?.includes(searchTerm);
 
-    const matchesStatus = !selectedStatus || order.status === selectedStatus
+    const matchesStatus = !selectedStatus || order.status === selectedStatus;
 
-    return matchesSearch && matchesStatus
-  })
+    return matchesSearch && matchesStatus;
+  });
 
   const handleViewOrder = (order) => {
-    setSelectedOrder(order)
-    setShowOrderDialog(true)
-  }
+    setSelectedOrder(order);
+    setShowOrderDialog(true);
+  };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Buyurtmalar</h1>
-          <p className="text-muted-foreground">Barcha buyurtmalarni ko'ring va boshqaring</p>
+          <p className="text-muted-foreground">
+            Barcha buyurtmalarni ko'ring va boshqaring
+          </p>
         </div>
       </div>
 
@@ -134,8 +145,12 @@ const Orders = () => {
                 <div className="flex justify-between items-start">
                   <div className="space-y-2">
                     <div className="flex items-center gap-3">
-                      <CardTitle className="text-lg">{order.orderNumber}</CardTitle>
-                      <Badge className={getStatusColor(order.status)}>{getStatusText(order.status)}</Badge>
+                      <CardTitle className="text-lg">
+                        {order.orderNumber}
+                      </CardTitle>
+                      <Badge className={getStatusColor(order.status)}>
+                        {getStatusText(order.status)}
+                      </Badge>
                     </div>
                     <CardDescription className="flex items-center gap-4">
                       <span className="flex items-center gap-1">
@@ -148,7 +163,11 @@ const Orders = () => {
                       </span>
                     </CardDescription>
                   </div>
-                  <Button variant="outline" size="sm" onClick={() => handleViewOrder(order)}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleViewOrder(order)}
+                  >
                     <Eye className="mr-2 h-4 w-4" />
                     Ko'rish
                   </Button>
@@ -157,7 +176,9 @@ const Orders = () => {
               <CardContent>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <h4 className="font-medium text-sm text-gray-900">Mijoz ma'lumotlari</h4>
+                    <h4 className="font-medium text-sm text-gray-900">
+                      Mijoz ma'lumotlari
+                    </h4>
                     <div className="space-y-1 text-sm text-gray-600">
                       <p className="font-medium">{order.customer?.fullName}</p>
                       <p className="flex items-center gap-1">
@@ -173,16 +194,25 @@ const Orders = () => {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <h4 className="font-medium text-sm text-gray-900">Buyurtma ma'lumotlari</h4>
+                    <h4 className="font-medium text-sm text-gray-900">
+                      Buyurtma ma'lumotlari
+                    </h4>
                     <div className="space-y-1 text-sm text-gray-600">
                       <p>
                         Jami summa:{" "}
                         <span className="font-medium">
-                          ${order.items?.reduce((sum, item) => sum + (item.totalPrice || 0), 0) || 0}
+                          $
+                          {order.items?.reduce(
+                            (sum, item) => sum + (item.totalPrice || 0),
+                            0
+                          ) || 0}
                         </span>
                       </p>
                       <p>
-                        Mahsulotlar soni: <span className="font-medium">{order.items?.length || 0}</span>
+                        Mahsulotlar soni:{" "}
+                        <span className="font-medium">
+                          {order.items?.length || 0}
+                        </span>
                       </p>
                     </div>
                   </div>
@@ -195,9 +225,12 @@ const Orders = () => {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Package className="h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Buyurtmalar topilmadi</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              Buyurtmalar topilmadi
+            </h3>
             <p className="text-gray-500 text-center mb-4">
-              Hozircha buyurtmalar yo'q yoki qidiruv natijasida hech narsa topilmadi.
+              Hozircha buyurtmalar yo'q yoki qidiruv natijasida hech narsa
+              topilmadi.
             </p>
           </CardContent>
         </Card>
@@ -210,7 +243,7 @@ const Orders = () => {
         onSuccess={fetchOrders}
       />
     </div>
-  )
-}
+  );
+};
 
-export default Orders
+export default Orders;
